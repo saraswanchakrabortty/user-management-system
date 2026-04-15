@@ -1,0 +1,14 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+
+# IDE
+.vscode/
+.idea/
+
+# Node (fallback, just in case)
+node_modules/

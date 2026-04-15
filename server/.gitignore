@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# environment
+.env
+
+# logs
+logs/
+*.log
+npm-debug.log*
+
+# runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# coverage
+coverage/
+
+# temp files
+tmp/
+temp/
+
+# OS junk
+.DS_Store
