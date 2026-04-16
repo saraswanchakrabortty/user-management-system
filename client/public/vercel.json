@@ -1,3 +1,9 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://user-management-api-agv5.onrender.com/api/$1"
+    },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }
