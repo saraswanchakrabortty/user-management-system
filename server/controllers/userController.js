@@ -1,3 +1,4 @@
+const ensureAdminExists = require("../utils/adminGuard");
 const User = require("../models/User");
 
 // @desc    Get all users (paginated + searchable + filterable)
@@ -124,7 +125,7 @@ const updateUser = async (req, res, next) => {
     const targetId = req.params.id;
     const requesterRole = req.user.role;
 
-    // Regular user: can only update themselves, cannot change role
+    // Regular user: can only update themselves, cannot change role or status
     if (requesterRole === "user") {
       if (requesterId !== targetId) {
         return res.status(403).json({ message: "Access denied" });
@@ -137,7 +138,7 @@ const updateUser = async (req, res, next) => {
       return res.status(200).json({ success: true, user });
     }
 
-    // Manager: cannot update admins or change roles
+    // Manager: cannot update admins or change roles/status to affect admins
     if (requesterRole === "manager") {
       if (user.role === "admin") {
         return res.status(403).json({ message: "Cannot modify admin users" });
@@ -151,7 +152,12 @@ const updateUser = async (req, res, next) => {
       return res.status(200).json({ success: true, user });
     }
 
-    // Admin: full update
+    // Admin: check if this change would lock out the system
+    await ensureAdminExists(targetId, {
+      role: req.body.role,
+      status: req.body.status,
+    });
+
     const { name, email, role, status, password } = req.body;
     if (name) user.name = name;
     if (email) user.email = email;
@@ -175,9 +181,13 @@ const deleteUser = async (req, res, next) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    // Prevent self-deletion
     if (req.params.id === req.user._id.toString()) {
-      return res.status(400).json({ message: "Cannot delete your own account" });
+      return res.status(400).json({ message: "You cannot deactivate your own account" });
     }
+
+    // Check if deleting this user would lock out the system
+    await ensureAdminExists(req.params.id, { status: "inactive" });
 
     user.status = "inactive";
     user.updatedBy = req.user._id;
