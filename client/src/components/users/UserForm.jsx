@@ -5,24 +5,34 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "../ui/Input";
 import Select from "../ui/Select";
 import Button from "../ui/Button";
+import useAuth from "../../hooks/useAuth";
 
-const schema = (isEdit) => z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email"),
-  password: isEdit
-    ? z.string().optional().or(z.literal(""))
-    : z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["admin", "manager", "user"]),
-  status: z.enum(["active", "inactive"]),
-});
+const buildSchema = (isEdit, isManager) =>
+  z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email"),
+    // password only required for admin creating a new user
+    password: isEdit || isManager
+      ? z.string().optional().or(z.literal(""))
+      : z.string().min(6, "Password must be at least 6 characters"),
+    role: z.enum(["admin", "manager", "user"]),
+    status: z.enum(["active", "inactive"]),
+  });
 
 const UserForm = ({ onSubmit, initialData, loading }) => {
+  const { user: currentUser } = useAuth();
   const isEdit = !!initialData;
+  const isManager = currentUser?.role === "manager";
+  const isAdmin = currentUser?.role === "admin";
+
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
-    resolver: zodResolver(schema(isEdit)),
+    resolver: zodResolver(buildSchema(isEdit, isManager)),
     defaultValues: {
-      name: "", email: "", password: "",
-      role: "user", status: "active",
+      name: "",
+      email: "",
+      password: "",
+      role: "user",
+      status: "active",
     },
   });
 
@@ -32,24 +42,81 @@ const UserForm = ({ onSubmit, initialData, loading }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <Input label="Full Name" placeholder="John Doe" error={errors.name?.message} {...register("name")} />
-      <Input label="Email" type="email" placeholder="john@example.com" error={errors.email?.message} {...register("email")} />
+
+      {/* Name — everyone can edit */}
       <Input
-        label={isEdit ? "New Password (leave blank to keep)" : "Password"}
-        type="password" placeholder="••••••••"
-        error={errors.password?.message} {...register("password")}
+        label="Full Name"
+        placeholder="John Doe"
+        error={errors.name?.message}
+        {...register("name")}
       />
+
+      {/* Email — everyone can edit */}
+      <Input
+        label="Email"
+        type="email"
+        placeholder="john@example.com"
+        error={errors.email?.message}
+        {...register("email")}
+      />
+
+      {/* Password — only shown to admin */}
+      {isAdmin && (
+        <Input
+          label={isEdit ? "New Password (leave blank to keep)" : "Password"}
+          type="password"
+          placeholder="••••••••"
+          error={errors.password?.message}
+          {...register("password")}
+        />
+      )}
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <Select label="Role" error={errors.role?.message} {...register("role")}>
-          <option value="user">User</option>
+
+        {/* Role dropdown */}
+        <Select
+          label="Role"
+          error={errors.role?.message}
+          {...register("role")}
+        >
+          {/* Admin can assign any role */}
+          {isAdmin && <option value="admin">Admin</option>}
+
+          {/* Both admin and manager can assign manager role */}
           <option value="manager">Manager</option>
-          <option value="admin">Admin</option>
+
+          {/* Both can assign user role */}
+          <option value="user">User</option>
         </Select>
-        <Select label="Status" error={errors.status?.message} {...register("status")}>
+
+        {/* Status — only admin can change, manager sees it disabled */}
+        <Select
+          label="Status"
+          error={errors.status?.message}
+          disabled={isManager}
+          style={{ opacity: isManager ? 0.5 : 1, cursor: isManager ? "not-allowed" : "pointer" }}
+          {...register("status")}
+        >
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </Select>
+
       </div>
+
+      {/* Helper text for manager */}
+      {isManager && (
+        <p style={{
+          fontSize: "0.76rem",
+          color: "var(--text-muted)",
+          background: "var(--bg-secondary)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--radius-sm)",
+          padding: "8px 12px",
+        }}>
+          ℹ️ As a manager you can update name, email, and promote to manager. Status and password changes require admin access.
+        </p>
+      )}
+
       <Button type="submit" loading={loading} style={{ marginTop: 8 }}>
         {isEdit ? "Update User" : "Create User"}
       </Button>

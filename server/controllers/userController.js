@@ -138,15 +138,31 @@ const updateUser = async (req, res, next) => {
       return res.status(200).json({ success: true, user });
     }
 
-    // Manager: cannot update admins or change roles/status to affect admins
+    // Manager: cannot update admins, cannot change status or password, cannot assign admin role
     if (requesterRole === "manager") {
       if (user.role === "admin") {
         return res.status(403).json({ message: "Cannot modify admin users" });
       }
-      const { name, email, status } = req.body;
+
+      // Block admin role assignment
+      if (req.body.role && req.body.role === "admin") {
+        return res.status(403).json({ message: "Managers cannot assign admin role" });
+      }
+
+      // Block status change only if explicitly sent with a value
+      if (req.body.status !== undefined && req.body.status !== null && req.body.status !== "") {
+        return res.status(403).json({ message: "Managers cannot change user status" });
+      }
+
+      // Block password change only if explicitly sent with a value
+      if (req.body.password !== undefined && req.body.password !== null && req.body.password !== "") {
+        return res.status(403).json({ message: "Managers cannot change user password" });
+      }
+
+      const { name, email, role } = req.body;
       if (name) user.name = name;
       if (email) user.email = email;
-      if (status) user.status = status;
+      if (role) user.role = role;
       user.updatedBy = req.user._id;
       await user.save();
       return res.status(200).json({ success: true, user });

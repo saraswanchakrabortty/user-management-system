@@ -54,19 +54,28 @@ const UserList = () => {
   };
 
   const handleUpdate = async (formData) => {
-    setFormLoading(true);
-    try {
-      const payload = { ...formData };
-      if (!payload.password) delete payload.password;
-      await api.put(`/users/${editModal._id}`, payload);
-      toast.success("User updated successfully");
-      setEditModal(null);
-      fetchUsers();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to update user");
-    } finally {
-      setFormLoading(false);
+  setFormLoading(true);
+  try {
+    const payload = { ...formData };
+
+    // Remove empty password always
+    if (!payload.password) delete payload.password;
+
+    // Manager should never send status or password
+    if (currentUser?.role === "manager") {
+      delete payload.status;
+      delete payload.password;
     }
+
+    await api.put(`/users/${editModal._id}`, payload);
+    toast.success("User updated successfully");
+    setEditModal(null);
+    fetchUsers();
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to update user");
+  } finally {
+    setFormLoading(false);
+  }
   };
 
   const handleDelete = async (user) => {
