@@ -20,6 +20,11 @@ app.use(cors({
     credentials: true,
 }));
 
+// Health check
+app.get("/api/health", (req, res) => {
+    res.status(200).json({ status: "OK", timestamp: new Date() });
+});
+
 // Rate limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -39,11 +44,6 @@ if (process.env.NODE_ENV === "development") {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-
-// Health check
-app.get("/api/health", (req, res) => {
-    res.status(200).json({ status: "OK", timestamp: new Date() });
-});
 
 // Global error handler
 app.use(errorHandler);
