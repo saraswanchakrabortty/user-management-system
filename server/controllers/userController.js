@@ -138,7 +138,7 @@ const updateUser = async (req, res, next) => {
       return res.status(200).json({ success: true, user });
     }
 
-    // Manager: cannot update admins, cannot change status or password, cannot assign admin role
+    // Manager: cannot update admins, cannot change status, cannot assign admin role
     if (requesterRole === "manager") {
       if (user.role === "admin") {
         return res.status(403).json({ message: "Cannot modify admin users" });
@@ -154,15 +154,20 @@ const updateUser = async (req, res, next) => {
         return res.status(403).json({ message: "Managers cannot change user status" });
       }
 
-      // Block password change only if explicitly sent with a value
+      // Block password change ONLY if they are trying to change someone else's password
       if (req.body.password !== undefined && req.body.password !== null && req.body.password !== "") {
-        return res.status(403).json({ message: "Managers cannot change user password" });
+        if (requesterId !== targetId) {
+          return res.status(403).json({ message: "Managers cannot change other users' passwords" });
+        }
       }
 
-      const { name, email, role } = req.body;
+      // Added password to the destructuring and assignment
+      const { name, email, role, password } = req.body;
       if (name) user.name = name;
       if (email) user.email = email;
       if (role) user.role = role;
+      if (password) user.password = password;
+
       user.updatedBy = req.user._id;
       await user.save();
       return res.status(200).json({ success: true, user });
