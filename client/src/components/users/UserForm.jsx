@@ -15,8 +15,13 @@ const buildSchema = (isEdit, isManager) =>
     password: isEdit || isManager
       ? z.string().optional().or(z.literal(""))
       : z.string().min(6, "Password must be at least 6 characters"),
-    role: z.enum(["admin", "manager", "user"]),
-    status: z.enum(["active", "inactive"]),
+    // role and status are stripped from manager payloads, so they must be optional in validation
+    role: isManager 
+      ? z.enum(["admin", "manager", "user"]).optional() 
+      : z.enum(["admin", "manager", "user"]),
+    status: isManager 
+      ? z.enum(["active", "inactive"]).optional() 
+      : z.enum(["active", "inactive"]),
   });
 
 const UserForm = ({ onSubmit, initialData, loading }) => {
@@ -73,19 +78,15 @@ const UserForm = ({ onSubmit, initialData, loading }) => {
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
 
-        {/* Role dropdown */}
+        {/* Role dropdown — only admin can change, manager sees it disabled */}
         <Select
           label="Role"
           error={errors.role?.message}
-          {...register("role")}
+          disabled={isManager}
+          {...register("role", { disabled: isManager })}
         >
-          {/* Admin can assign any role */}
           {isAdmin && <option value="admin">Admin</option>}
-
-          {/* Both admin and manager can assign manager role */}
           <option value="manager">Manager</option>
-
-          {/* Both can assign user role */}
           <option value="user">User</option>
         </Select>
 
@@ -94,8 +95,7 @@ const UserForm = ({ onSubmit, initialData, loading }) => {
           label="Status"
           error={errors.status?.message}
           disabled={isManager}
-          style={{ opacity: isManager ? 0.5 : 1, cursor: isManager ? "not-allowed" : "pointer" }}
-          {...register("status")}
+          {...register("status", { disabled: isManager })}
         >
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
@@ -113,7 +113,7 @@ const UserForm = ({ onSubmit, initialData, loading }) => {
           borderRadius: "var(--radius-sm)",
           padding: "8px 12px",
         }}>
-          ℹ️ As a manager you can update name, email, and promote to manager. Status and password changes require admin access.
+          ℹ️ As a manager you can only update the name and email. Role, status, and password changes require admin access.
         </p>
       )}
 
