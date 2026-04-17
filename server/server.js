@@ -32,7 +32,7 @@ app.get("/api/health", (req, res) => {
 // Rate limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100,
+    max: 200,
     message: "Too many requests from this IP, please try again later",
 });
 app.use("/api", limiter);
