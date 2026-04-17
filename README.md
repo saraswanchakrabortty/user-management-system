@@ -111,7 +111,7 @@ Three roles with clearly separated permissions:
 | View all users             | ✅       | ✅ (no admins)  | ❌       |
 | Create users               | ✅       | ❌              | ❌       |
 | Edit any user's name/email | ✅       | ✅ (non-admins) | ❌       |
-| Edit user password         | ✅       | ❌              | Own only |
+| Edit user password         | ✅       | Own Only        | Own only |
 | Change user role           | ✅ (any) | ❌              | ❌       |
 | Change user status         | ✅       | ❌              | ❌       |
 | Deactivate (delete) user   | ✅       | ❌              | ❌       |
