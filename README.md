@@ -11,7 +11,7 @@ A full-stack **Role-Based User Management System** built with the MERN stack. It
 |                  | URL                                                           |
 | ---------------- | --------------------------------------------------------------|
 | **Frontend**     | https://user-management-system-iota-rouge.vercel.app          |
-| **Backend API**  | https://user-management-api-agv5.onrender.com                 |
+| **Backend API**  | https://user-management-api-agv5.onrender.com/api             |
 | **Health Check** | https://user-management-api-agv5.onrender.com/api/health      |
 
 ### Test Credentials
