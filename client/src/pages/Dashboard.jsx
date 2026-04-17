@@ -61,7 +61,11 @@ const Dashboard = () => {
           <StatCard icon={Users} label="Total Users" value={stats?.total} color="var(--accent)" />
           <StatCard icon={UserCheck} label="Active Users" value={stats?.active} color="var(--success)" />
           <StatCard icon={UserX} label="Inactive Users" value={stats?.inactive} color="var(--danger)" />
-          <StatCard icon={ShieldCheck} label="Admins" value={stats?.admins} color="var(--warning)" />
+          
+          {/* Conditional rendering applied here to restrict the Admin card */}
+          {user?.role === "admin" && (
+             <StatCard icon={ShieldCheck} label="Admins" value={stats?.admins} color="var(--warning)" />
+          )}
         </div>
       )}
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +22,21 @@ const schema = z.object({
 const Profile = () => {
   const { user, updateUser } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [profileData, setProfileData] = useState(null); // Added state to hold the fetched profile
+
+  // Fetch the full user details on mount to ensure we have 'createdAt'
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { data } = await api.get(`/users/${user.id}`);
+        setProfileData(data.user);
+      } catch (err) {
+        console.error("Failed to fetch full profile data", err);
+      }
+    };
+
+    if (user?.id) fetchProfile();
+  }, [user?.id]);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
@@ -44,6 +59,9 @@ const Profile = () => {
     }
   };
 
+  // Use the fetched profileData if available, otherwise fall back to the context user
+  const displayUser = profileData || user;
+
   return (
     <div className="fade-in">
       <div style={{ marginBottom: 24 }}>
@@ -64,17 +82,18 @@ const Profile = () => {
             fontSize: "1.4rem", fontWeight: 700, color: "var(--accent)",
             margin: "0 auto 14px",
           }}>
-            {getInitials(user?.name)}
+            {getInitials(displayUser?.name)}
           </div>
-          <div style={{ fontWeight: 700, fontSize: "1rem", marginBottom: 4 }}>{user?.name}</div>
-          <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginBottom: 12 }}>{user?.email}</div>
+          <div style={{ fontWeight: 700, fontSize: "1rem", marginBottom: 4 }}>{displayUser?.name}</div>
+          <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginBottom: 12 }}>{displayUser?.email}</div>
           <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap" }}>
-            <Badge variant={roleColor(user?.role)}>{user?.role}</Badge>
-            <Badge variant={statusColor(user?.status)}>{user?.status}</Badge>
+            <Badge variant={roleColor(displayUser?.role)}>{displayUser?.role}</Badge>
+            <Badge variant={statusColor(displayUser?.status)}>{displayUser?.status}</Badge>
           </div>
           <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--border)", fontSize: "0.75rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
             Member since<br />
-            <span style={{ color: "var(--text-secondary)" }}>{formatDate(user?.createdAt)}</span>
+            {/* Now passing the fetched createdAt value */}
+            <span style={{ color: "var(--text-secondary)" }}>{formatDate(displayUser?.createdAt)}</span>
           </div>
         </div>
 
