@@ -11,23 +11,11 @@ const Modal = ({ isOpen, onClose, title, children, width = 500 }) => {
   if (!isOpen) return null;
 
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 16,
-      }}
-    >
+    <div className="modal-overlay" onClick={onClose}>
       <div
+        className="modal-box fade-in"
+        style={{ maxWidth: width }}
         onClick={(e) => e.stopPropagation()}
-        className="fade-in"
-        style={{
-          background: "var(--bg-card)", border: "1px solid var(--border)",
-          borderRadius: "var(--radius-lg)", width: "100%", maxWidth: width,
-          boxShadow: "var(--shadow-lg)", maxHeight: "90vh", overflowY: "auto",
-        }}
       >
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -36,8 +24,8 @@ const Modal = ({ isOpen, onClose, title, children, width = 500 }) => {
           <h2 style={{ fontSize: "1rem", fontWeight: 700 }}>{title}</h2>
           <button onClick={onClose} style={{
             background: "none", border: "none", cursor: "pointer",
-            color: "var(--text-muted)", padding: 4, borderRadius: "var(--radius-sm)",
-            display: "flex", alignItems: "center",
+            color: "var(--text-muted)", padding: 4,
+            borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center",
           }}>
             <X size={18} />
           </button>

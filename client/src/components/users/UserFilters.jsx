@@ -1,9 +1,12 @@
 import { Search } from "lucide-react";
 
 const UserFilters = ({ filters, onChange }) => (
-  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+  <div className="filters-bar">
     <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
-      <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+      <Search size={14} style={{
+        position: "absolute", left: 12, top: "50%",
+        transform: "translateY(-50%)", color: "var(--text-muted)",
+      }} />
       <input
         placeholder="Search name or email..."
         value={filters.search}
@@ -22,7 +25,8 @@ const UserFilters = ({ filters, onChange }) => (
       style={{
         padding: "8px 14px", background: "var(--bg-card)",
         border: "1px solid var(--border)", borderRadius: "var(--radius-sm)",
-        color: "var(--text-primary)", fontSize: "0.875rem", cursor: "pointer", outline: "none",
+        color: "var(--text-primary)", fontSize: "0.875rem",
+        cursor: "pointer", outline: "none",
       }}
     >
       <option value="">All Roles</option>
@@ -36,7 +40,8 @@ const UserFilters = ({ filters, onChange }) => (
       style={{
         padding: "8px 14px", background: "var(--bg-card)",
         border: "1px solid var(--border)", borderRadius: "var(--radius-sm)",
-        color: "var(--text-primary)", fontSize: "0.875rem", cursor: "pointer", outline: "none",
+        color: "var(--text-primary)", fontSize: "0.875rem",
+        cursor: "pointer", outline: "none",
       }}
     >
       <option value="">All Status</option>

@@ -51,7 +51,7 @@ const Profile = () => {
         <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginTop: 2 }}>Manage your account settings</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, maxWidth: 800 }}>
+      <div className="profile-grid">
         {/* Info card */}
         <div style={{
           background: "var(--bg-card)", border: "1px solid var(--border)",

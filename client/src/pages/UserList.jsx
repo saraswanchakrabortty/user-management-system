@@ -54,28 +54,24 @@ const UserList = () => {
   };
 
   const handleUpdate = async (formData) => {
-  setFormLoading(true);
-  try {
-    const payload = { ...formData };
-
-    // Remove empty password always
-    if (!payload.password) delete payload.password;
-
-    // Manager should never send status or password
-    if (currentUser?.role === "manager") {
-      delete payload.status;
-      delete payload.password;
+    setFormLoading(true);
+    try {
+      const payload = { ...formData };
+      if (!payload.password) delete payload.password;
+      if (currentUser?.role === "manager") {
+        delete payload.status;
+        delete payload.password;
+        delete payload.role;
+      }
+      await api.put(`/users/${editModal._id}`, payload);
+      toast.success("User updated successfully");
+      setEditModal(null);
+      fetchUsers();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update user");
+    } finally {
+      setFormLoading(false);
     }
-
-    await api.put(`/users/${editModal._id}`, payload);
-    toast.success("User updated successfully");
-    setEditModal(null);
-    fetchUsers();
-  } catch (err) {
-    toast.error(err.response?.data?.message || "Failed to update user");
-  } finally {
-    setFormLoading(false);
-  }
   };
 
   const handleDelete = async (user) => {
@@ -91,7 +87,7 @@ const UserList = () => {
 
   return (
     <div className="fade-in">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+      <div className="page-header">
         <div>
           <h1 style={{ fontSize: "1.5rem", fontWeight: 700 }}>Users</h1>
           <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginTop: 2 }}>
@@ -105,7 +101,10 @@ const UserList = () => {
         )}
       </div>
 
-      <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
+      <div style={{
+        background: "var(--bg-card)", border: "1px solid var(--border)",
+        borderRadius: "var(--radius-lg)", overflow: "hidden",
+      }}>
         <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
           <UserFilters filters={filters} onChange={setFilters} />
         </div>
@@ -115,26 +114,29 @@ const UserList = () => {
             <Spinner size={28} />
           </div>
         ) : (
-          <UserTable
-            users={users}
-            onView={(u) => navigate(`/users/${u._id}`)}
-            onEdit={(u) => setEditModal(u)}
-            onDelete={handleDelete}
-          />
+          <div className="table-wrapper">
+            <UserTable
+              users={users}
+              onView={(u) => navigate(`/users/${u._id}`)}
+              onEdit={(u) => setEditModal(u)}
+              onDelete={handleDelete}
+            />
+          </div>
         )}
 
-        {/* Pagination */}
         {meta.pages > 1 && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderTop: "1px solid var(--border)" }}>
+          <div className="pagination-bar">
             <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
               Page {filters.page} of {meta.pages}
             </span>
             <div style={{ display: "flex", gap: 8 }}>
-              <Button variant="secondary" size="sm" disabled={filters.page <= 1}
+              <Button variant="secondary" size="sm"
+                disabled={filters.page <= 1}
                 onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}>
                 Previous
               </Button>
-              <Button variant="secondary" size="sm" disabled={filters.page >= meta.pages}
+              <Button variant="secondary" size="sm"
+                disabled={filters.page >= meta.pages}
                 onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}>
                 Next
               </Button>
@@ -146,7 +148,6 @@ const UserList = () => {
       <Modal isOpen={createModal} onClose={() => setCreateModal(false)} title="Create New User">
         <UserForm onSubmit={handleCreate} loading={formLoading} />
       </Modal>
-
       <Modal isOpen={!!editModal} onClose={() => setEditModal(null)} title="Edit User">
         <UserForm onSubmit={handleUpdate} initialData={editModal} loading={formLoading} />
       </Modal>

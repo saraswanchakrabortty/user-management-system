@@ -43,12 +43,8 @@ const Login = () => {
       backgroundImage: "radial-gradient(ellipse at 20% 50%, rgba(108,99,255,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(59,130,246,0.06) 0%, transparent 50%)",
       padding: 16,
     }}>
-      <div className="fade-in" style={{
-        width: "100%", maxWidth: 400,
-        background: "var(--bg-card)", border: "1px solid var(--border)",
-        borderRadius: "var(--radius-lg)", padding: "40px 36px",
-        boxShadow: "var(--shadow-lg)",
-      }}>
+      {/* Replaced inline styles with className here */}
+      <div className="login-card fade-in">
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{

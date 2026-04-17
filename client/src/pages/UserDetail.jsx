@@ -47,11 +47,7 @@ const UserDetail = () => {
 
       <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
         {/* Header */}
-        <div style={{
-          padding: "28px 28px", borderBottom: "1px solid var(--border)",
-          display: "flex", alignItems: "center", gap: 18,
-          background: "linear-gradient(135deg, var(--bg-card), var(--bg-hover))",
-        }}>
+        <div className="detail-header">
           <div style={{
             width: 60, height: 60, borderRadius: "50%",
             background: "var(--accent-dim)", border: "2px solid var(--accent)",
@@ -63,7 +59,7 @@ const UserDetail = () => {
           <div>
             <h1 style={{ fontSize: "1.3rem", fontWeight: 700 }}>{user.name}</h1>
             <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>{user.email}</p>
-            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <div className="badge-row" style={{ display: "flex", gap: 8, marginTop: 8 }}>
               <Badge variant={roleColor(user.role)}>{user.role}</Badge>
               <Badge variant={statusColor(user.status)}>{user.status}</Badge>
             </div>

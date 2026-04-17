@@ -1,23 +1,27 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Users, UserCircle, LogOut, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Users, UserCircle, LogOut, ShieldCheck, X } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import { getInitials } from "../../utils/helpers";
 
-const NavItem = ({ to, icon: Icon, label }) => (
-  <NavLink to={to} style={({ isActive }) => ({
-    display: "flex", alignItems: "center", gap: 10,
-    padding: "9px 14px", borderRadius: "var(--radius-sm)",
-    fontSize: "0.875rem", fontWeight: 500, transition: "all 0.15s",
-    color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
-    background: isActive ? "var(--bg-hover)" : "transparent",
-    borderLeft: isActive ? "2px solid var(--accent)" : "2px solid transparent",
-  })}>
+const NavItem = ({ to, icon: Icon, label, onClick }) => (
+  <NavLink
+    to={to}
+    onClick={onClick}
+    style={({ isActive }) => ({
+      display: "flex", alignItems: "center", gap: 10,
+      padding: "9px 14px", borderRadius: "var(--radius-sm)",
+      fontSize: "0.875rem", fontWeight: 500, transition: "all 0.15s",
+      color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+      background: isActive ? "var(--bg-hover)" : "transparent",
+      borderLeft: isActive ? "2px solid var(--accent)" : "2px solid transparent",
+    })}
+  >
     <Icon size={16} />
     {label}
   </NavLink>
 );
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -27,36 +31,50 @@ const Sidebar = () => {
   };
 
   return (
-    <aside style={{
-      width: "var(--sidebar-width)", height: "100vh",
-      background: "var(--bg-secondary)", borderRight: "1px solid var(--border)",
-      display: "flex", flexDirection: "column", position: "fixed", left: 0, top: 0,
-      zIndex: 100,
-    }}>
+    <aside className={`sidebar ${isOpen ? "open" : ""}`}>
       {/* Logo */}
       <div style={{
         padding: "20px 18px", borderBottom: "1px solid var(--border)",
-        display: "flex", alignItems: "center", gap: 10,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
-        <div style={{
-          width: 32, height: 32, borderRadius: "var(--radius-sm)",
-          background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <ShieldCheck size={18} color="#fff" />
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: "var(--radius-sm)",
+            background: "var(--accent)", display: "flex",
+            alignItems: "center", justifyContent: "center",
+          }}>
+            <ShieldCheck size={18} color="#fff" />
+          </div>
+          <div>
+            <div style={{ fontSize: "0.9rem", fontWeight: 700, lineHeight: 1.2 }}>UserVault</div>
+            <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Management System</div>
+          </div>
         </div>
-        <div>
-          <div style={{ fontSize: "0.9rem", fontWeight: 700, lineHeight: 1.2 }}>UserVault</div>
-          <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Management System</div>
-        </div>
+        {/* Close button — mobile only */}
+        <button
+          onClick={onClose}
+          style={{
+            display: "none",
+            background: "none", border: "none",
+            cursor: "pointer", color: "var(--text-muted)",
+            padding: 4,
+          }}
+          className="sidebar-close-btn"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: "16px 10px", display: "flex", flexDirection: "column", gap: 4 }}>
-        <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
+      <nav style={{
+        flex: 1, padding: "16px 10px",
+        display: "flex", flexDirection: "column", gap: 4,
+      }}>
+        <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" onClick={onClose} />
         {["admin", "manager"].includes(user?.role) && (
-          <NavItem to="/users" icon={Users} label="Users" />
+          <NavItem to="/users" icon={Users} label="Users" onClick={onClose} />
         )}
-        <NavItem to="/profile" icon={UserCircle} label="My Profile" />
+        <NavItem to="/profile" icon={UserCircle} label="My Profile" onClick={onClose} />
       </nav>
 
       {/* User footer */}
@@ -75,16 +93,28 @@ const Sidebar = () => {
             {getInitials(user?.name)}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: "0.82rem", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user?.name}</div>
-            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "capitalize" }}>{user?.role}</div>
+            <div style={{
+              fontSize: "0.82rem", fontWeight: 600,
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}>
+              {user?.name}
+            </div>
+            <div style={{
+              fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "capitalize",
+            }}>
+              {user?.role}
+            </div>
           </div>
-          <button onClick={handleLogout} title="Logout" style={{
-            background: "none", border: "none", cursor: "pointer",
-            color: "var(--text-muted)", padding: 4, borderRadius: 4,
-            display: "flex", alignItems: "center", transition: "color 0.15s",
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = "var(--danger)"}
-          onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}
+          <button
+            onClick={handleLogout}
+            title="Logout"
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: "var(--text-muted)", padding: 4, borderRadius: 4,
+              display: "flex", alignItems: "center", transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = "var(--danger)"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}
           >
             <LogOut size={15} />
           </button>

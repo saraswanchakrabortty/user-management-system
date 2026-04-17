@@ -76,7 +76,8 @@ const UserForm = ({ onSubmit, initialData, loading }) => {
         />
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      {/* Replaced inline styles with className here */}
+      <div className="form-grid-2">
 
         {/* Role dropdown — only admin can change, manager sees it disabled */}
         <Select
