@@ -20,6 +20,10 @@ app.use(cors({
     credentials: true,
 }));
 
+app.get("/api", (req, res) => {
+    res.status(200).json({ status: "API is Live", timestamp: new Date(), message: "Refer README.md" });
+});
+
 // Health check
 app.get("/api/health", (req, res) => {
     res.status(200).json({ status: "OK", timestamp: new Date() });
